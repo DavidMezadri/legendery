@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcritor de Vídeos com IA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            background: #f0f0ff;
+            border-color: #764ba2;
+        }
+        
+        .upload-area.dragover {
+            background: #e0e7ff;
+            border-color: #4f46e5;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .progress-container {
+            margin-top: 20px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .status-message {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 5px;
+            color: #1976d2;
+        }
+        
+        .video-list {
+            list-style: none;
+        }
+        
+        .video-item {
+            padding: 10px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .delete-btn:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .result-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .result-card p {
+            color: #666;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+        
+        .download-btn {
+            background: #28a745;
+            padding: 8px 15px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .modal-header h2 {
+            color: #667eea;
+            margin: 0;
+        }
+
+        #modalTitle {
+            display: block;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+        }
+        
+        .close {
+            font-size: 35px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .close:hover {
+            color: #333;
+        }
+        
+        .modal-body {
+            white-space: pre-wrap;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.6;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 Transcritor de Vídeos com IA</h1>
+        <p class="subtitle">Transcreva vídeos e extraia texto de imagens com IA</p>
+        
+        <!-- Tabs -->
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button onclick="switchTab('videos')" id="tabVideos" class="tab-button" style="flex: 1; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: white; border: none; cursor: pointer; font-size: 16px; font-weight: bold;">
+                🎬 Vídeos
+            </button>
+            <button onclick="switchTab('images')" id="tabImages" class="tab-button" style="flex: 1; padding: 15px; background: #ccc; border-radius: 10px; color: #333; border: none; cursor: pointer; font-size: 16px; font-weight: bold;">
+                🖼️ Imagens (OCR)
+            </button>
+        </div>
+        
+        <!-- Upload de Vídeos -->
+        <div class="section" id="videoSection">
+            <h2>📤 Upload de Vídeos</h2>
+            <div class="upload-area" id="uploadArea">
+                <p style="font-size: 48px; margin-bottom: 10px;">☁️</p>
+                <p style="font-size: 18px; color: #667eea; font-weight: bold;">Clique ou arraste vídeos aqui</p>
+                <p style="color: #999; margin-top: 5px;">MP4, AVI, MOV, MKV (máx. 500MB)</p>
+                <input type="file" id="fileInput" multiple accept="video/*">
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3>Vídeos enviados:</h3>
+                    <button onclick="clearAllVideos()" style="background: #dc3545; padding: 8px 15px; font-size: 14px;">
+                        🗑️ Limpar Todos
+                    </button>
+                </div>
+                <ul class="video-list" id="videoList"></ul>
+            </div>
+        </div>
+        
+        <!-- Upload de Imagens -->
+        <div class="section" id="imageSection" style="display: none;">
+            <h2>📤 Upload de Imagens com Texto</h2>
+            <div class="upload-area" id="uploadAreaImages">
+                <p style="font-size: 48px; margin-bottom: 10px;">🖼️</p>
+                <p style="font-size: 18px; color: #667eea; font-weight: bold;">Clique ou arraste imagens aqui</p>
+                <p style="color: #999; margin-top: 5px;">PNG, JPG, JPEG, WEBP (imagens com texto)</p>
+                <input type="file" id="fileInputImages" multiple accept="image/*">
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3>Imagens enviadas:</h3>
+                    <button onclick="clearAllImages()" style="background: #dc3545; padding: 8px 15px; font-size: 14px;">
+                        🗑️ Limpar Todas
+                    </button>
+                </div>
+                <ul class="video-list" id="imageList"></ul>
+            </div>
+        </div>
+        
+        <!-- Prompt Section -->
+        <div class="section">
+            <h2>✨ Prompt para Gemini AI</h2>
+            <p style="color: #666; margin-bottom: 10px;" id="promptDescription">
+                Este prompt será usado para analisar as transcrições dos vídeos
+            </p>
+            <textarea id="customPrompt" placeholder="Digite o prompt personalizado para análise com Gemini...">
+A partir da transcrição, gere legendas profissionais para Instagram com foco em marketing digital.
+Regras:
+Gerar 3 possibilidades de legenda
+Linguagem clara, envolvente e objetiva
+Frases curtas e de fácil leitura
+Tom profissional e persuasivo
+Use emojis com moderação
+Inclua uma chamada para ação no final
+Formate o texto com quebras de linha, como uma legenda real do Instagram
+Se fizer sentido, inclua até 5 hashtags relevantes
+Retorne apenas a legenda final, pronta para copiar e colar no Instagram.</textarea>
+            
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button id="processBtn" onclick="startProcessing('videos')" style="flex: 1;">
+                    🚀 Processar Vídeos
+                </button>
+                <button id="processBtnImages" onclick="startProcessing('images')" style="flex: 1; display: none;">
+                    🚀 Processar Imagens
+                </button>
+            </div>
+        </div>
+        
+        <!-- Progress Section -->
+        <div class="section" id="progressSection">
+            <h2>⚙️ Processamento em Andamento</h2>
+            <div class="progress-container" id="progressContainer">
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <div class="stat-card">
+                    <div class="stat-label">Vídeo Atual</div>
+                    <div class="stat-value" id="currentVideo">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Etapa</div>
+                    <div class="stat-value" id="currentStep">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Progresso</div>
+                    <div class="stat-value" id="videoProgress">0/0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Tempo Decorrido</div>
+                    <div class="stat-value" id="elapsedTime">00:00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Tempo Restante</div>
+                    <div class="stat-value" id="remainingTime">--:--</div>
+                </div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill">0%</div>
+            </div>
+            <div class="status-message" id="statusMessage"></div>
+            
+            <div class="detailed-stats" style="margin-top: 20px; padding: 15px; background: white; border-radius: 10px;">
+                <h3 style="margin-bottom: 10px; color: #667eea;">📊 Estatísticas Detalhadas</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px;">
+                    <div>
+                        <strong>⏱️ Extração de Áudio:</strong>
+                        <span id="audioExtractionTime">0s</span>
+                    </div>
+                    <div>
+                        <strong>📝 Tempo de Transcrição:</strong>
+                        <span id="transcriptionTime">0s</span>
+                    </div>
+                    <div>
+                        <strong>🤖 Análise Gemini:</strong>
+                        <span id="geminiTime">0s</span>
+                    </div>
+                    <div>
+                        <strong>💾 Áudio Processado:</strong>
+                        <span id="audioSize">0 MB</span>
+                    </div>
+                    <div>
+                        <strong>📄 Caracteres Transcritos:</strong>
+                        <span id="transcriptionLength">0</span>
+                    </div>
+                    <div>
+                        <strong>⏰ Tempo Total:</strong>
+                        <span id="totalTime">0s</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Section -->
+        <div class="section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2>📊 Resultados</h2>
+                <div>
+                    <button onclick="loadResults()" style="background: #17a2b8; margin-right: 10px;">
+                        🔄 Atualizar
+                    </button>
+                    <button onclick="clearAllResults()" style="background: #dc3545;">
+                        🗑️ Limpar Resultados
+                    </button>
+                </div>
+            </div>
+            <div class="results-grid" id="resultsGrid"></div>
+        </div>
+    </div>
+    
+    <!-- Modal para visualizar conteúdo -->
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">📄 Visualizar Arquivo</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+    
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadAreaImages = document.getElementById('uploadAreaImages');
+        const fileInputImages = document.getElementById('fileInputImages');
+        const videoList = document.getElementById('videoList');
+        const imageList = document.getElementById('imageList');
+        const processBtn = document.getElementById('processBtn');
+        const processBtnImages = document.getElementById('processBtnImages');
+        const progressSection = document.getElementById('progressSection');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const statusMessage = document.getElementById('statusMessage');
+        const resultsGrid = document.getElementById('resultsGrid');
+        
+        let currentTab = 'videos';
+        
+        // Tab switching
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            if (tab === 'videos') {
+                document.getElementById('videoSection').style.display = 'block';
+                document.getElementById('imageSection').style.display = 'none';
+                document.getElementById('processBtn').style.display = 'block';
+                document.getElementById('processBtnImages').style.display = 'none';
+                
+                // Atualizar estilos das tabs
+                document.getElementById('tabVideos').style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                document.getElementById('tabVideos').style.color = 'white';
+                document.getElementById('tabImages').style.background = '#e0e0e0';
+                document.getElementById('tabImages').style.color = '#333';
+                
+                document.getElementById('promptDescription').textContent = 'Este prompt será usado para analisar as transcrições dos vídeos';
+                document.getElementById('customPrompt').value = `A partir da transcrição de um video, gere legendas profissionais para Instagram com foco em marketing digital.
+Regras:
+Gerar 3 possibilidades de legenda
+Linguagem clara, envolvente e objetiva
+Frases curtas e de fácil leitura
+Tom profissional e persuasivo
+Use emojis com moderação
+Inclua uma chamada para ação no final
+Formate o texto com quebras de linha, como uma legenda real do Instagram
+Se fizer sentido, inclua até 5 hashtags relevantes
+Retorne apenas a legenda final, pronta para copiar e colar no Instagram.
+                `;
+            } else {
+                document.getElementById('videoSection').style.display = 'none';
+                document.getElementById('imageSection').style.display = 'block';
+                document.getElementById('processBtn').style.display = 'none';
+                document.getElementById('processBtnImages').style.display = 'block';
+                
+                // Atualizar estilos das tabs
+                document.getElementById('tabVideos').style.background = '#e0e0e0';
+                document.getElementById('tabVideos').style.color = '#333';
+                document.getElementById('tabImages').style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                document.getElementById('tabImages').style.color = 'white';
+                
+                document.getElementById('promptDescription').textContent = 'Este prompt será usado para analisar os textos extraídos das imagens';
+                document.getElementById('customPrompt').value = `A partir da transcrição de imagens, gere legendas profissionais para Instagram com foco em marketing digital.
+Regras:
+Gerar 3 possibilidades de legenda
+Linguagem clara, envolvente e objetiva
+Frases curtas e de fácil leitura
+Tom profissional e persuasivo
+Use emojis com moderação
+Inclua uma chamada para ação no final
+Formate o texto com quebras de linha, como uma legenda real do Instagram
+Se fizer sentido, inclua até 5 hashtags relevantes
+Retorne apenas a legenda final, pronta para copiar e colar no Instagram.`;
+                loadImageList();
+            }
+        }
+        
+        // Upload handlers - Vídeos
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files, 'videos');
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files, 'videos');
+        });
+        
+        // Upload handlers - Imagens
+        uploadAreaImages.addEventListener('click', () => fileInputImages.click());
+        
+        uploadAreaImages.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadAreaImages.classList.add('dragover');
+        });
+        
+        uploadAreaImages.addEventListener('dragleave', () => {
+            uploadAreaImages.classList.remove('dragover');
+        });
+        
+        uploadAreaImages.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadAreaImages.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files, 'images');
+        });
+        
+        fileInputImages.addEventListener('change', (e) => {
+            handleFiles(e.target.files, 'images');
+        });
+        
+        async function handleFiles(files, type) {
+            const formData = new FormData();
+            const fieldName = type === 'videos' ? 'videos' : 'images';
+            
+            for (let file of files) {
+                formData.append(fieldName, file);
+            }
+            
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    if (type === 'videos') {
+                        loadVideoList();
+                        alert(`✅ ${data.uploaded_videos.length} vídeo(s) enviado(s)!`);
+                    } else {
+                        loadImageList();
+                        alert(`✅ ${data.uploaded_images.length} imagem(ns) enviada(s)!`);
+                    }
+                }
+            } catch (error) {
+                alert('❌ Erro ao enviar arquivos: ' + error.message);
+            }
+        }
+        
+        async function loadVideoList() {
+            const response = await fetch('/videos');
+            const videos = await response.json();
+            
+            videoList.innerHTML = videos.map(video => `
+                <li class="video-item">
+                    <span>🎥 ${video}</span>
+                    <div>
+                        <span class="badge">Pronto</span>
+                        <button class="delete-btn" onclick="deleteVideo('${video}')">🗑️</button>
+                    </div>
+                </li>
+            `).join('');
+        }
+        
+        async function loadImageList() {
+            const response = await fetch('/images');
+            const images = await response.json();
+            
+            imageList.innerHTML = images.map(image => `
+                <li class="video-item">
+                    <span>🖼️ ${image}</span>
+                    <div>
+                        <span class="badge">Pronto</span>
+                        <button class="delete-btn" onclick="deleteImage('${image}')">🗑️</button>
+                    </div>
+                </li>
+            `).join('');
+        }
+        
+        async function deleteVideo(filename) {
+            if (!confirm(`Deseja remover "${filename}"?`)) return;
+            
+            try {
+                const response = await fetch(`/delete-video/${filename}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    loadVideoList();
+                }
+            } catch (error) {
+                alert('❌ Erro ao remover vídeo: ' + error.message);
+            }
+        }
+        
+        async function clearAllVideos() {
+            if (!confirm('⚠️ Deseja remover TODOS os vídeos enviados?')) return;
+            
+            try {
+                const response = await fetch('/clear-videos', {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    loadVideoList();
+                }
+            } catch (error) {
+                alert('❌ Erro: ' + error.message);
+            }
+        }
+        
+        async function clearAllResults() {
+            if (!confirm('⚠️ Deseja remover TODOS os resultados?')) return;
+            
+            try {
+                const response = await fetch('/clear-results', {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    loadResults();
+                }
+            } catch (error) {
+                alert('❌ Erro: ' + error.message);
+            }
+        }
+        
+        async function deleteImage(filename) {
+            if (!confirm(`Deseja remover "${filename}"?`)) return;
+            
+            try {
+                const response = await fetch(`/delete-image/${filename}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    loadImageList();
+                }
+            } catch (error) {
+                alert('❌ Erro ao remover imagem: ' + error.message);
+            }
+        }
+        
+        async function clearAllImages() {
+            if (!confirm('⚠️ Deseja remover TODAS as imagens enviadas?')) return;
+            
+            try {
+                const response = await fetch('/clear-images', {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    loadImageList();
+                }
+            } catch (error) {
+                alert('❌ Erro: ' + error.message);
+            }
+        }
+        
+        async function startProcessing(type) {
+            const prompt = document.getElementById('customPrompt').value;
+            
+            processBtn.disabled = true;
+            processBtnImages.disabled = true;
+            progressSection.style.display = 'block';
+            
+            // Inicializar valores
+            document.getElementById('currentVideo').textContent = 'Iniciando...';
+            document.getElementById('currentStep').textContent = 'Preparando...';
+            document.getElementById('videoProgress').textContent = '0/0';
+            document.getElementById('elapsedTime').textContent = '00:00';
+            document.getElementById('remainingTime').textContent = '--:--';
+            progressFill.style.width = '0%';
+            progressFill.textContent = '0%';
+            statusMessage.textContent = 'Iniciando processamento...';
+            
+            // Scroll suave até a seção de progresso
+            progressSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            try {
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({prompt, type})
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    monitorProgress();
+                } else {
+                    throw new Error(data.error || 'Erro desconhecido');
+                }
+            } catch (error) {
+                alert('❌ Erro: ' + error.message);
+                processBtn.disabled = false;
+                processBtnImages.disabled = false;
+                progressSection.style.display = 'none';
+            }
+        }
+        
+        async function monitorProgress() {
+            const interval = setInterval(async () => {
+                try {
+                    const response = await fetch('/status');
+                    const status = await response.json();
+                    
+                    console.log('Status recebido:', status); // Debug
+                    
+                    // Atualizar barra de progresso
+                    progressFill.style.width = status.progress + '%';
+                    progressFill.textContent = status.progress + '%';
+                    statusMessage.textContent = status.message || 'Processando...';
+                    
+                    // Atualizar cards de estatísticas
+                    document.getElementById('currentVideo').textContent = status.current_video || 'Aguardando...';
+                    document.getElementById('currentStep').textContent = status.current_step || 'Preparando...';
+                    document.getElementById('videoProgress').textContent = 
+                        `${status.processed_videos || 0}/${status.total_videos || 0}`;
+                    
+                    // Tempo decorrido
+                    const elapsed = status.elapsed_time || 0;
+                    const elapsedMin = Math.floor(elapsed / 60);
+                    const elapsedSec = elapsed % 60;
+                    document.getElementById('elapsedTime').textContent = 
+                        `${String(elapsedMin).padStart(2, '0')}:${String(elapsedSec).padStart(2, '0')}`;
+                    
+                    // Tempo restante estimado
+                    const remaining = status.estimated_remaining || 0;
+                    if (remaining > 0 && status.is_processing) {
+                        const remainMin = Math.floor(remaining / 60);
+                        const remainSec = remaining % 60;
+                        document.getElementById('remainingTime').textContent = 
+                            `${String(remainMin).padStart(2, '0')}:${String(remainSec).padStart(2, '0')}`;
+                    } else if (status.is_processing) {
+                        document.getElementById('remainingTime').textContent = 'Calculando...';
+                    } else {
+                        document.getElementById('remainingTime').textContent = '00:00';
+                    }
+                    
+                    // Estatísticas detalhadas
+                    if (status.stats) {
+                        document.getElementById('audioExtractionTime').textContent = 
+                            (status.stats.audio_extraction_time || 0).toFixed(1) + 's';
+                        document.getElementById('transcriptionTime').textContent = 
+                            (status.stats.transcription_time || 0).toFixed(1) + 's';
+                        document.getElementById('geminiTime').textContent = 
+                            (status.stats.gemini_analysis_time || 0).toFixed(1) + 's';
+                        document.getElementById('audioSize').textContent = 
+                            (status.stats.total_audio_size || 0).toFixed(2) + ' MB';
+                        document.getElementById('transcriptionLength').textContent = 
+                            (status.stats.total_transcription_length || 0).toLocaleString();
+                        
+                        // Calcular tempo total
+                        const totalProcessed = (status.stats.audio_extraction_time || 0) + 
+                                              (status.stats.transcription_time || 0) + 
+                                              (status.stats.gemini_analysis_time || 0);
+                        document.getElementById('totalTime').textContent = totalProcessed.toFixed(1) + 's';
+                    }
+                    
+                    if (!status.is_processing) {
+                        clearInterval(interval);
+                        processBtn.disabled = false;
+                        processBtnImages.disabled = false;
+                        
+                        // Manter visível por 3 segundos após concluir
+                        setTimeout(() => {
+                            // progressSection.style.display = 'none';
+                        }, 3000);
+                        
+                        loadResults();
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar status:', error);
+                }
+            }, 500); // Atualiza a cada 500ms para mais responsividade
+        }
+        
+        async function loadResults() {
+            const response = await fetch('/results');
+            const results = await response.json();
+            
+            resultsGrid.innerHTML = results.map(result => {
+                const isImage = result.tipo === 'imagens';
+                
+                // Para imagens, extrair timestamp do formato salvo
+                let fileTimestamp = '';
+                if (isImage && result.timestamp) {
+                    // Converter de ISO "2026-01-17T17:16:18.174033" para "20260117_171618"
+                    const date = new Date(result.timestamp);
+                    fileTimestamp = date.getFullYear().toString() +
+                                  String(date.getMonth() + 1).padStart(2, '0') +
+                                  String(date.getDate()).padStart(2, '0') + '_' +
+                                  String(date.getHours()).padStart(2, '0') +
+                                  String(date.getMinutes()).padStart(2, '0') +
+                                  String(date.getSeconds()).padStart(2, '0');
+                }
+                
+                const displayName = isImage ? `📸 ${result.total_imagens} Imagens` : `🎬 ${result.video}`;
+                
+                return `
+                <div class="result-card">
+                    <div style="overflow-wrap: break-word;">
+                        <h3>${displayName}</h3>
+                    </div>
+                    ${!isImage ? `<p><strong>Idioma:</strong> ${result.idioma || 'N/A'}</p>` : ''}
+                    <p><strong>Data:</strong> ${new Date(result.timestamp).toLocaleString('pt-BR')}</p>
+                    ${result.stats ? `
+                        <div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 12px;">
+                            ${!isImage ? `
+                                <p><strong>⏱️ Extração:</strong> ${result.stats.audio_extraction_time}s</p>
+                                <p><strong>📝 Transcrição:</strong> ${result.stats.transcription_time}s</p>
+                                <p><strong>💾 Áudio:</strong> ${result.stats.audio_size_mb}MB</p>
+                                <p><strong>📄 Caracteres:</strong> ${result.stats.transcription_chars?.toLocaleString() || 'N/A'}</p>
+                            ` : `
+                                <p><strong>📝 OCR:</strong> ${result.stats.ocr_time}s</p>
+                                <p><strong>📄 Caracteres:</strong> ${result.stats.total_chars?.toLocaleString() || 'N/A'}</p>
+                            `}
+                            <p><strong>🤖 Gemini:</strong> ${result.stats.gemini_analysis_time}s</p>
+                        </div>
+                    ` : ''}
+                    ${!isImage ? `
+                        <div style="margin-top: 10px;">
+                            <button class="download-btn" onclick="viewFile('${result.video}_transcricao.txt', 'Transcrição - ${result.video}')" style="background: #17a2b8;">
+                                👁️ Ver Transcrição
+                            </button>
+                            <button class="download-btn" onclick="downloadFile('${result.video}_transcricao.txt')">
+                                📥 Baixar Transcrição
+                            </button>
+                        </div>
+                        <div style="margin-top: 5px;">
+                            <button class="download-btn" onclick="viewFile('${result.video}_analise.txt', 'Análise Gemini - ${result.video}')" style="background: #17a2b8;">
+                                👁️ Ver Análise
+                            </button>
+                            <button class="download-btn" onclick="downloadFile('${result.video}_analise.txt')">
+                                📥 Baixar Análise
+                            </button>
+                        </div>
+                        <button class="download-btn" onclick="downloadFile('${result.video}_resultado.json')" style="background: #6c757d; margin-top: 5px;">
+                            📦 Baixar JSON
+                        </button>
+                    ` : `
+                        <div style="margin-top: 10px;">
+                            <button class="download-btn" onclick="viewImageResult('${fileTimestamp}')" style="background: #17a2b8;">
+                                👁️ Ver Textos Extraídos
+                            </button>
+                            <button class="download-btn" onclick="downloadImageFile('${fileTimestamp}', 'textos')">
+                                📥 Baixar Textos
+                            </button>
+                        </div>
+                        <div style="margin-top: 5px;">
+                            <button class="download-btn" onclick="viewImageAnalysis('${fileTimestamp}')" style="background: #17a2b8;">
+                                👁️ Ver Análise
+                            </button>
+                            <button class="download-btn" onclick="downloadImageFile('${fileTimestamp}', 'analise')">
+                                📥 Baixar Análise
+                            </button>
+                        </div>
+                        <button class="download-btn" onclick="downloadImageFile('${fileTimestamp}', 'resultado')" style="background: #6c757d; margin-top: 5px;">
+                            📦 Baixar JSON
+                        </button>
+                    `}
+                </div>
+            `}).join('');
+        }
+        
+        async function viewImageResult(timestamp) {
+            const filename = `imagens_${timestamp}_textos.txt`;
+            viewFile(filename, 'Textos Extraídos - ' + timestamp);
+        }
+        
+        async function viewImageAnalysis(timestamp) {
+            const filename = `imagens_${timestamp}_analise.txt`;
+            viewFile(filename, 'Análise Gemini - ' + timestamp);
+        }
+        
+        function downloadImageFile(timestamp, type) {
+            let filename;
+            if (type === 'textos') {
+                filename = `imagens_${timestamp}_textos.txt`;
+            } else if (type === 'analise') {
+                filename = `imagens_${timestamp}_analise.txt`;
+            } else {
+                filename = `imagens_${timestamp}_resultado.json`;
+            }
+            downloadFile(filename);
+        }
+        
+        function downloadFile(filename) {
+            // Codifica o filename corretamente
+            const encodedFilename = encodeURIComponent(filename);
+            window.open('/download/' + encodedFilename, '_blank');
+        }
+        
+        async function viewFile(filename, title) {
+            const encodedFilename = encodeURIComponent(filename);
+            try {
+                const response = await fetch('/view/' + encodedFilename);
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert('❌ ' + data.error);
+                    return;
+                }
+                
+                document.getElementById('modalTitle').textContent = '📄 ' + title;
+                document.getElementById('modalBody').textContent = data.content;
+                document.getElementById('viewModal').style.display = 'block';
+            } catch (error) {
+                alert('❌ Erro ao carregar arquivo: ' + error.message);
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('viewModal').style.display = 'none';
+        }
+        
+        // Fecha modal ao clicar fora
+        window.onclick = function(event) {
+            const modal = document.getElementById('viewModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+        
+        // Load initial data
+        loadVideoList();
+        loadImageList();
+        loadResults();
+    </script>
+</body>
+</html>

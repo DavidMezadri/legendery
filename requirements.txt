@@ -1,0 +1,7 @@
+flask
+faster-whisper
+ffmpeg-python
+torch
+google-generativeai
+pytesseract
+Pillow

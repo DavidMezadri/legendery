@@ -1,0 +1,13 @@
+services:
+  transcricao:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: whisper_transcriber
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    command: python app.py
